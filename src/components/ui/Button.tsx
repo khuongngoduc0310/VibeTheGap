@@ -1,5 +1,8 @@
+"use client";
+
 import * as React from "react";
 import { cn } from "@/lib/utils-ui";
+import { motion } from "framer-motion";
 
 const Button = React.forwardRef<
   HTMLButtonElement,
@@ -23,15 +26,18 @@ const Button = React.forwardRef<
   };
 
   return (
-    <button
-      ref={ref}
+    <motion.button
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+      ref={ref as any}
       className={cn(
         "inline-flex items-center justify-center rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:opacity-50 disabled:pointer-events-none",
         variants[variant],
         sizes[size],
         className
       )}
-      {...props}
+      {...props as any}
     />
   );
 });

@@ -14,7 +14,10 @@ export function Navbar() {
         <div className="flex justify-between h-16 items-center">
           <div className="flex-shrink-0 flex items-center gap-2">
             <Sparkles className="h-6 w-6 text-indigo-600" />
-            <Link href="/" className="font-bold text-xl text-slate-900 tracking-tight">
+            <Link 
+              href="/" 
+              className="font-bold text-xl text-slate-900 tracking-tight"
+            >
               CampusPulse <span className="text-indigo-600">AI</span>
             </Link>
           </div>
@@ -23,8 +26,8 @@ export function Navbar() {
               <div className="h-8 w-8 rounded-full bg-slate-100 animate-pulse" />
             ) : isSignedIn ? (
               <>
-                <Link href="/create" className="text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors">
-                  New Event
+                <Link href="/dashboard" className="text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors">
+                  Dashboard
                 </Link>
                 <UserButton />
               </>
