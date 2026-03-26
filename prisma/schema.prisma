@@ -1,0 +1,98 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── User (simplified — no auth for MVP, identify by email) ───
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  name      String?
+  projects  Project[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+// ─── Project ───
+
+model Project {
+  id               String    @id @default(cuid())
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organizationName String
+  eventName        String
+  description      String
+  goal             String
+  form             Form?
+  insights         Insight[]
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+// ─── Form ───
+
+model Form {
+  id        String     @id @default(cuid())
+  projectId String     @unique
+  project   Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  shareId   String     @unique @default(cuid())
+  questions Question[]
+  responses Response[]
+  published Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+// ─── Question ───
+
+model Question {
+  id      String       @id @default(cuid())
+  formId  String
+  form    Form         @relation(fields: [formId], references: [id], onDelete: Cascade)
+  text    String
+  type    QuestionType
+  options String[]
+  order   Int
+
+  @@index([formId])
+}
+
+enum QuestionType {
+  RATING
+  MULTIPLE_CHOICE
+  OPEN_ENDED
+}
+
+// ─── Response (one per form submission) ───
+
+model Response {
+  id        String   @id @default(cuid())
+  formId    String
+  form      Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
+  answers   Json
+  createdAt DateTime @default(now())
+
+  @@index([formId])
+}
+
+// ─── Insight (AI-generated analysis) ───
+
+model Insight {
+  id                    String   @id @default(cuid())
+  projectId             String
+  project               Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  summary               String
+  sentimentDistribution Json
+  painPoints            String[]
+  suggestions           String[]
+  responseCount         Int
+  createdAt             DateTime @default(now())
+
+  @@index([projectId])
+}
