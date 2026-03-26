@@ -57,7 +57,7 @@ export function StatisticDashboard({ stats }: StatisticDashboardProps) {
                   {stat.order}. {stat.text}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="pt-6 h-[300px]">
+              <CardContent className={`pt-6 ${isRating ? 'h-[300px]' : 'h-[420px]'}`}>
                 <ResponsiveContainer width="100%" height="100%">
                   {isRating ? (
                     <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 10 }}>
@@ -74,11 +74,11 @@ export function StatisticDashboard({ stats }: StatisticDashboardProps) {
                       </Bar>
                     </BarChart>
                   ) : (
-                    <PieChart>
+                    <PieChart margin={{ top: 0, right: 0, bottom: 20, left: 0 }}>
                       <Pie
                         data={data}
                         cx="50%"
-                        cy="50%"
+                        cy="45%"
                         innerRadius={60}
                         outerRadius={80}
                         paddingAngle={5}
@@ -91,7 +91,11 @@ export function StatisticDashboard({ stats }: StatisticDashboardProps) {
                       <Tooltip 
                         contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                       />
-                      <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                      <Legend 
+                        verticalAlign="bottom" 
+                        wrapperStyle={{ paddingTop: "20px", fontSize: "12px", lineHeight: "1.5" }} 
+                        iconType="circle" 
+                      />
                     </PieChart>
                   )}
                 </ResponsiveContainer>
