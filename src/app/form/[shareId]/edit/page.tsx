@@ -34,7 +34,7 @@ export default async function EditFormPage({
   return (
     <div className="bg-slate-50 min-h-screen">
       <EditFormClient
-        formId={form.id}
+        formId={shareId}
         projectId={form.project.id}
         eventName={form.project.eventName}
         initialQuestions={form.questions.map((q: any) => ({

@@ -22,8 +22,11 @@ export async function POST(
 
     const { text, type, options, order } = parsed.data;
 
-    const form = await prisma.form.findUnique({
-      where: { shareId },
+    // Verify form exists and user owns it (robust check for both shareId and internal ID)
+    const form = await prisma.form.findFirst({
+      where: {
+        OR: [{ shareId }, { id: shareId }],
+      },
       include: { project: true }
     });
     

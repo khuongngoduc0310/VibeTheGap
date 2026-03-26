@@ -22,9 +22,11 @@ export async function PUT(
 
     const { questions } = parsed.data;
 
-    // Verify form exists and user owns it
-    const form = await prisma.form.findUnique({
-      where: { shareId },
+    // Verify form exists and user owns it (robust check for both shareId and internal ID)
+    const form = await prisma.form.findFirst({
+      where: {
+        OR: [{ shareId }, { id: shareId }],
+      },
       include: { project: true }
     });
     

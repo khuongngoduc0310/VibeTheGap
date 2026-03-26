@@ -9,8 +9,10 @@ export async function GET(
   try {
     const { shareId } = await params;
 
-    const form = await prisma.form.findUnique({
-      where: { shareId },
+    const form = await prisma.form.findFirst({
+      where: {
+        OR: [{ shareId }, { id: shareId }],
+      },
       include: {
         questions: { orderBy: { order: "asc" } },
         project: {
