@@ -10,12 +10,13 @@ import { nanoid } from "nanoid";
 
 interface EditFormClientProps {
   formId: string;
+  shareId: string;
   projectId: string;
   eventName: string;
   initialQuestions: EditableQuestion[];
 }
 
-export function EditFormClient({ formId, projectId, eventName, initialQuestions }: EditFormClientProps) {
+export function EditFormClient({ formId, shareId, projectId, eventName, initialQuestions }: EditFormClientProps) {
   const router = useRouter();
   const [questions, setQuestions] = useState<EditableQuestion[]>(initialQuestions);
   const [saving, setSaving] = useState(false);
@@ -66,7 +67,7 @@ export function EditFormClient({ formId, projectId, eventName, initialQuestions 
 
       // 2. Batch update existing questions
       if (existingQs.length > 0) {
-        const updateRes = await fetch(`/api/form/${formId}/questions`, {
+        const updateRes = await fetch(`/api/form/${shareId}/questions`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ questions: existingQs }),
@@ -76,7 +77,7 @@ export function EditFormClient({ formId, projectId, eventName, initialQuestions 
 
       // 3. Create newly added questions individually
       for (const q of newQs) {
-        const createRes = await fetch(`/api/form/${formId}/question`, {
+        const createRes = await fetch(`/api/form/${shareId}/question`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

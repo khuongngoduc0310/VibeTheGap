@@ -140,11 +140,22 @@ export function DashboardContent({
               {copied ? <span className="text-xs font-bold text-green-600 uppercase">Copied!</span> : <Copy className="h-4 w-4" />}
             </button>
           </div>
-          <Link href={`/form/${shareId}/edit`}>
-            <Button variant="outline" className="w-full">
+          {responseCount > 0 ? (
+            <Button 
+              variant="outline" 
+              className="w-full opacity-50 cursor-not-allowed" 
+              onClick={(e) => e.preventDefault()} 
+              title="Cannot edit form after receiving responses"
+            >
               Edit Questions
             </Button>
-          </Link>
+          ) : (
+            <Link href={`/form/${shareId}/edit`}>
+              <Button variant="outline" className="w-full">
+                Edit Questions
+              </Button>
+            </Link>
+          )}
           <Link href={`/form/${shareId}`} target="_blank">
             <Button className="w-full shadow-md shadow-indigo-100">
               <ExternalLink className="mr-2 h-4 w-4" /> View Form

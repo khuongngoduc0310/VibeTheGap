@@ -20,6 +20,9 @@ export default async function EditFormPage({
     include: {
       project: true,
       questions: { orderBy: { order: "asc" } },
+      _count: {
+        select: { responses: true }
+      }
     },
   });
 
@@ -31,10 +34,16 @@ export default async function EditFormPage({
     return redirect("/");
   }
 
+  // Deny edit when there is already response
+  if (form._count.responses > 0) {
+    return redirect(`/dashboard/${form.project.id}`);
+  }
+
   return (
     <div className="bg-slate-50 min-h-screen">
       <EditFormClient
         formId={form.id}
+        shareId={form.shareId}
         projectId={form.project.id}
         eventName={form.project.eventName}
         initialQuestions={form.questions.map((q: any) => ({

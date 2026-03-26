@@ -24,15 +24,34 @@ export async function POST(request: Request) {
     const { organizationName, eventName, description, goal } = parsed.data;
 
     // Ensure user exists in our DB
-    await prisma.user.upsert({
-      where: { id: userId },
-      update: { email, name: `${user.firstName || ""} ${user.lastName || ""}`.trim() || null },
-      create: {
-        id: userId,
-        email,
-        name: `${user.firstName || ""} ${user.lastName || ""}`.trim() || null,
-      },
-    });
+    const name = `${user.firstName || ""} ${user.lastName || ""}`.trim() || null;
+    
+    try {
+      await prisma.user.upsert({
+        where: { id: userId },
+        update: { email, name },
+        create: {
+          id: userId,
+          email,
+          name,
+        },
+      });
+    } catch (e: any) {
+      if (e.code === "P2002") {
+        // If they recreated their Clerk account, they have a new userId but same email.
+        // Delete the old dangling record to prevent unique constraint violations.
+        await prisma.user.delete({ where: { email } });
+        await prisma.user.create({
+          data: {
+            id: userId,
+            email,
+            name,
+          }
+        });
+      } else {
+        throw e;
+      }
+    }
 
     const project = await prisma.project.create({
       data: {
