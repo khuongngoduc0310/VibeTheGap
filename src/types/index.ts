@@ -3,8 +3,6 @@ import { z } from "zod";
 // ─── Project ───
 
 export const createProjectSchema = z.object({
-  email: z.string().email(),
-  name: z.string().min(1).optional(),
   organizationName: z.string().min(1, "Organization name is required"),
   eventName: z.string().min(1, "Event name is required"),
   description: z.string().min(10, "Description must be at least 10 characters"),
@@ -60,6 +58,33 @@ export interface AnalysisResult {
   painPoints: string[];
   suggestions: string[];
 }
+
+// ─── Edit Questions ───
+
+export const questionTypeEnum = z.enum(["RATING", "MULTIPLE_CHOICE", "OPEN_ENDED"]);
+
+export const addQuestionSchema = z.object({
+  text: z.string().min(1, "Question text is required"),
+  type: questionTypeEnum,
+  options: z.array(z.string()),
+  order: z.number().int().min(1),
+});
+
+export type AddQuestionInput = z.infer<typeof addQuestionSchema>;
+
+export const updateQuestionsBatchSchema = z.object({
+  questions: z.array(
+    z.object({
+      id: z.string().cuid(),
+      text: z.string().min(1, "Question text is required"),
+      type: questionTypeEnum,
+      options: z.array(z.string()),
+      order: z.number().int().min(1),
+    })
+  ),
+});
+
+export type UpdateQuestionsBatchInput = z.infer<typeof updateQuestionsBatchSchema>;
 
 // ─── API Response Wrapper ───
 

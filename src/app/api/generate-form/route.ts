@@ -1,10 +1,14 @@
 import { prisma } from "@/lib/prisma";
 import { generateFormSchema } from "@/types";
+import { auth } from "@clerk/nextjs/server";
 import { generateQuestions } from "@/lib/ai";
 import { generateShareId, errorResponse, successResponse } from "@/lib/utils";
 
 export async function POST(request: Request) {
   try {
+    const { userId } = await auth();
+    if (!userId) return errorResponse("Unauthorized", 401);
+
     const body = await request.json();
     const parsed = generateFormSchema.safeParse(body);
 
@@ -16,7 +20,7 @@ export async function POST(request: Request) {
 
     // Fetch project details for AI context
     const project = await prisma.project.findUnique({
-      where: { id: projectId },
+      where: { id: projectId, userId },
       include: { form: true },
     });
 

@@ -9,7 +9,7 @@ datasource db {
 // ─── User (simplified — no auth for MVP, identify by email) ───
 
 model User {
-  id        String    @id @default(cuid())
+  id        String    @id
   email     String    @unique
   name      String?
   projects  Project[]
@@ -52,13 +52,14 @@ model Form {
 // ─── Question ───
 
 model Question {
-  id      String       @id @default(cuid())
-  formId  String
-  form    Form         @relation(fields: [formId], references: [id], onDelete: Cascade)
-  text    String
-  type    QuestionType
-  options String[]
-  order   Int
+  id       String       @id @default(cuid())
+  formId   String
+  form     Form         @relation(fields: [formId], references: [id], onDelete: Cascade)
+  text     String
+  type     QuestionType
+  options  String[]
+  order    Int
+  isCustom Boolean      @default(false)
 
   @@index([formId])
 }

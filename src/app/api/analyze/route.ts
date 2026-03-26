@@ -1,11 +1,15 @@
 import { prisma } from "@/lib/prisma";
 import { analyzeSchema } from "@/types";
+import { auth } from "@clerk/nextjs/server";
 import { analyzeFeedback } from "@/lib/ai";
 import { sendSummaryEmail } from "@/lib/email";
 import { errorResponse, successResponse } from "@/lib/utils";
 
 export async function POST(request: Request) {
   try {
+    const { userId } = await auth();
+    if (!userId) return errorResponse("Unauthorized", 401);
+
     const body = await request.json();
     const parsed = analyzeSchema.safeParse(body);
 
@@ -15,9 +19,9 @@ export async function POST(request: Request) {
 
     const { projectId } = parsed.data;
 
-    // Fetch project with form, questions, and responses
+    // Verify ownership
     const project = await prisma.project.findUnique({
-      where: { id: projectId },
+      where: { id: projectId, userId },
       include: {
         user: { select: { email: true } },
         form: {
@@ -29,12 +33,8 @@ export async function POST(request: Request) {
       },
     });
 
-    if (!project) {
-      return errorResponse("Project not found", 404);
-    }
-
-    if (!project.form) {
-      return errorResponse("No form found for this project", 404);
+    if (!project || !project.form) {
+      return errorResponse("Project or form not found", 404);
     }
 
     if (project.form.responses.length === 0) {
