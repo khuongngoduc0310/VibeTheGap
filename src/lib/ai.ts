@@ -3,7 +3,7 @@ import { z } from "zod";
 import type { GeneratedQuestion, AnalysisResult } from "@/types";
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY?.replace(/^["']|["']$/g, '').trim(),
 });
 
 // ─── Schemas for Validation ───
