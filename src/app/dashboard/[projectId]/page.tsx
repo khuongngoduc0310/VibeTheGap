@@ -22,12 +22,9 @@ export default async function ProjectDashboard({
     },
     include: {
       form: {
-        select: {
-          id: true,
-          shareId: true,
-          _count: {
-            select: { responses: true },
-          },
+        include: {
+          questions: { orderBy: { order: "asc" } },
+          responses: true,
         },
       },
       insights: {
@@ -41,6 +38,33 @@ export default async function ProjectDashboard({
     return notFound();
   }
 
+  const responseCount = project.form?.responses.length || 0;
+
+  // Compute stats distribution per question
+  const stats = project.form?.questions.map((q: any) => {
+    const counts: Record<string, number> = {};
+    if (q.type === "MULTIPLE_CHOICE" || q.type === "RATING") {
+      project.form?.responses.forEach((res: any) => {
+        const answers = res.answers as { questionId: string; value: string | number }[];
+        if (Array.isArray(answers)) {
+          const answer = answers.find((a) => a.questionId === q.id);
+          if (answer) {
+            const valStr = String(answer.value);
+            counts[valStr] = (counts[valStr] || 0) + 1;
+          }
+        }
+      });
+    }
+    return {
+      id: q.id,
+      text: q.text,
+      type: q.type,
+      options: q.options,
+      order: q.order,
+      counts,
+    };
+  }) || [];
+
   return (
     <div className="bg-slate-50 min-h-screen">
       <DashboardContent
@@ -49,8 +73,9 @@ export default async function ProjectDashboard({
         eventName={project.eventName}
         formId={project.form?.id || ""}
         shareId={project.form?.shareId || ""}
-        responseCount={project.form?._count.responses || 0}
+        responseCount={responseCount}
         initialInsight={project.insights[0] || null}
+        stats={stats}
       />
     </div>
   );

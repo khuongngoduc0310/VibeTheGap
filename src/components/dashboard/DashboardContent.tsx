@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { 
   BarChart3, 
   Copy, 
@@ -17,11 +17,13 @@ import {
   TrendingUp,
   Minus,
   AlertCircle,
-  ArrowLeft
+  ArrowLeft,
+  PieChart as PieChartIcon
 } from "lucide-react";
 import Link from "next/link";
 import { QRCodeCard } from "./QRCodeCard";
 import { motion, AnimatePresence } from "framer-motion";
+import { StatisticDashboard } from "./StatisticDashboard";
 
 interface Insight {
   id: string;
@@ -33,6 +35,15 @@ interface Insight {
   createdAt: Date;
 }
 
+interface QuestionStat {
+  id: string;
+  text: string;
+  type: string;
+  options: string[];
+  order: number;
+  counts: Record<string, number>;
+}
+
 interface DashboardContentProps {
   projectId: string;
   organizationName: string;
@@ -41,6 +52,7 @@ interface DashboardContentProps {
   shareId: string;
   responseCount: number;
   initialInsight: Insight | null;
+  stats: QuestionStat[];
 }
 
 const fadeInUp = {
@@ -65,10 +77,12 @@ export function DashboardContent({
   shareId,
   responseCount,
   initialInsight,
+  stats,
 }: DashboardContentProps) {
   const [insight, setInsight] = useState<Insight | null>(initialInsight);
   const [analyzing, setAnalyzing] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [viewMode, setViewMode] = useState<"ai" | "stats">("ai");
 
   const shareUrl = `${window.location.origin}/form/${shareId}`;
 
@@ -194,8 +208,30 @@ export function DashboardContent({
       </motion.div>
 
       {/* Detail Area */}
+      {insight && responseCount > 0 && (
+        <motion.div 
+          variants={fadeInUp}
+          className="flex flex-wrap items-center gap-3 pt-6 pb-2"
+        >
+          <Button 
+            variant={viewMode === "ai" ? "primary" : "outline"}
+            onClick={() => setViewMode("ai")}
+            className={`flex-1 sm:flex-none transition-all ${viewMode === "ai" ? "shadow-md shadow-indigo-200" : "text-slate-500 hover:text-indigo-600"}`}
+          >
+            <Sparkles className="mr-2 h-4 w-4" /> AI Insights
+          </Button>
+          <Button 
+            variant={viewMode === "stats" ? "primary" : "outline"}
+            onClick={() => setViewMode("stats")}
+            className={`flex-1 sm:flex-none transition-all ${viewMode === "stats" ? "shadow-md shadow-indigo-200" : "text-slate-500 hover:text-indigo-600"}`}
+          >
+            <PieChartIcon className="mr-2 h-4 w-4" /> Detailed Statistics
+          </Button>
+        </motion.div>
+      )}
+
       <AnimatePresence mode="wait">
-        {insight && (
+        {insight && viewMode === "ai" && (
           <motion.div 
             key="insights"
             initial={{ opacity: 0, y: 40 }}
@@ -304,6 +340,18 @@ export function DashboardContent({
                 </CardContent>
               </Card>
             </div>
+          </motion.div>
+        )}
+        
+        {insight && viewMode === "stats" && (
+          <motion.div
+            key="stats"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -40 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <StatisticDashboard stats={stats} />
           </motion.div>
         )}
       </AnimatePresence>
