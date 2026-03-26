@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY || "re_dummy");
 
 interface SendSummaryEmailParams {
   to: string;
@@ -30,6 +30,11 @@ export async function sendSummaryEmail(
     suggestions,
     sentimentDistribution,
   } = params;
+
+  if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY.includes("your_resend") || process.env.RESEND_API_KEY === "re_dummy") {
+    console.warn("Skipping email send: RESEND_API_KEY is not configured.");
+    return;
+  }
 
   await resend.emails.send({
     from: "CampusPulse AI <noreply@campuspulse.ai>",
